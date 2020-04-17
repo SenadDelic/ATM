@@ -1,4 +1,4 @@
-package atm;
+package account;
 
 public class User {
     private String firstName;

@@ -1,7 +1,5 @@
 package account;
 
-import atm.User;
-
 import java.util.ArrayList;
 import java.util.Date;
 
