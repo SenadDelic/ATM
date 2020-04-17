@@ -3,12 +3,12 @@ package atm;
 public class User {
     private String firstName;
     private String lastName;
-    private int jmbg;
+    private String jmbg;
 
     public User() {
     }
 
-    public User(String firstName, String lastName, int jmbg) {
+    public User(String firstName, String lastName, String jmbg) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.jmbg = jmbg;
@@ -30,12 +30,15 @@ public class User {
         this.lastName = lastName;
     }
 
-    public int getJmbg() {
+    public String getJmbg() {
         return jmbg;
     }
 
-    public void setJmbg(int jmbg) {
-        this.jmbg = jmbg;
+    public void setJmbg(String jmbg) {
+        if(jmbg.length() != 13)
+            System.out.println("JMBG need to have 13 numbers!");
+        else
+            this.jmbg = jmbg;
     }
 
     @Override
