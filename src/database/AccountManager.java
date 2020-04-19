@@ -9,7 +9,7 @@ public class AccountManager {
     private static Connection connection = ConnectionManager.getInstance().getConnection();
 
 
-    public static boolean insert(Account account, User user) throws SQLException {
+    public static boolean insert(User user, Account account) throws SQLException {
         String sql = "INSERT INTO Account (firstName, lastName, accountNumber, amount) "
                 + "VALUES(?, ?, ?, ?)";
         ResultSet resultSet = null;
@@ -40,4 +40,49 @@ public class AccountManager {
         return true;
     }
 
+    public static boolean update(User user, Account account) {
+        String sql = "UPDATE Account SET " +
+                "firstName = ?, lastName = ?, accountNumber = ?, amount = ? " +
+                "WHERE Id = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, user.getFirstName());
+            preparedStatement.setString(2, user.getLastName());
+            preparedStatement.setInt(3, account.getAccountNumber());
+            preparedStatement.setDouble(4, account.getAmount());
+            preparedStatement.setInt(5, account.getAccountId());
+
+            int affected = preparedStatement.executeUpdate();
+            return affected == 1;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static Account getRow(int accountId) throws SQLException {
+        String sql = "SELECT * FROM Account " + "WHERE id = ?";
+        ResultSet rs = null;
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, accountId);
+            rs = preparedStatement.executeQuery();
+
+            if (rs.next()) {
+                Account account = new Account();
+
+                account.setAccountId(rs.getObject("id", Integer.class));
+                account.setAccountNumber(rs.getObject("accountNumber", Integer.class));
+                account.setAmount(rs.getObject("amount", Double.class));
+
+                return account;
+            } else
+                return null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (rs != null) rs.close();
+        }
+    }
 }
