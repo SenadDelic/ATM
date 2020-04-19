@@ -40,7 +40,7 @@ public class AccountManager {
         return true;
     }
 
-    public static boolean update(User user, Account account) {
+    public static void update(User user, Account account) {
         String sql = "UPDATE Account SET " +
                 "firstName = ?, lastName = ?, accountNumber = ?, amount = ? " +
                 "WHERE Id = ?";
@@ -52,11 +52,45 @@ public class AccountManager {
             preparedStatement.setDouble(4, account.getAmount());
             preparedStatement.setInt(5, account.getAccountId());
 
-            int affected = preparedStatement.executeUpdate();
-            return affected == 1;
+            if (preparedStatement.executeUpdate() == 1)
+                System.out.println("Update was successful");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Update failed!");
+        }
+    }
+
+    public static boolean delete(int accountId) {
+        String sql = "DELETE FROM Account WHERE id = ?";
+
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+        ) {
+            preparedStatement.setInt(1, accountId);
+            return preparedStatement.executeUpdate() == 1;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static void displayAllRows() {
+        String sql = "SELECT * FROM Account";
+
+        try (
+                Statement statement = connection.createStatement();
+                ResultSet rs = statement.executeQuery(sql);
+        ) {
+            System.out.printf("%-3s  %-12s  %-11s  %-16s  %-11s", rs.getMetaData().getColumnName(1), rs.getMetaData().getColumnName(2)
+                    , rs.getMetaData().getColumnName(3), rs.getMetaData().getColumnName(4), rs.getMetaData().getColumnName(5));
+
+            while (rs.next()) {
+                System.out.printf("\n%-3d  %-12s  %-11s  %-16d  %-11.2f", rs.getInt(1), rs.getString(2), rs.getString(3)
+                        , rs.getInt(4), rs.getDouble(5));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
