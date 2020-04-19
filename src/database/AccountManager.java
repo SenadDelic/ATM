@@ -8,7 +8,6 @@ import java.sql.*;
 public class AccountManager {
     private static Connection connection = ConnectionManager.getInstance().getConnection();
 
-
     public static boolean insert(User user, Account account) throws SQLException {
         String sql = "INSERT INTO Account (firstName, lastName, accountNumber, amount) "
                 + "VALUES(?, ?, ?, ?)";
