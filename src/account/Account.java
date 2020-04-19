@@ -6,6 +6,7 @@ import java.util.Date;
 public class Account {
     private ArrayList<Account> listOfAccounts;
     private User user;
+    private int accountId;
     private int accountNumber;
     private double amount;
     private Date date;
@@ -24,6 +25,14 @@ public class Account {
 
         listOfAccounts = new ArrayList<>();
         listOfAccounts.add(this);
+    }
+
+    public int getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
     }
 
     public int getAccountNumber() {
