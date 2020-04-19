@@ -11,8 +11,8 @@ public class Main {
 
     public static void main(String[] args) throws SQLException {
 
-        /*ser senad = new User("Senad", "Delic");
-        Account senadAcc = new Account(senad, 1, 300);
+        User senad = new User("Senad", "Delic");
+        /*Account senadAcc = new Account(senad, 1, 300);
 
         if (AccountManager.insert(senad, senadAcc))
             System.out.println("New row with primary key " + senadAcc.getAccountId() + " are inserted!");*/
@@ -29,10 +29,7 @@ public class Main {
         double amount = input.nextDouble();
         User user = new User();
 
-        if (AccountManager.update(user,account))
-            System.out.println("TOp");
-        else
-            System.out.println("JOk");
+        AccountManager.update(senad,account);
 
     }
 }

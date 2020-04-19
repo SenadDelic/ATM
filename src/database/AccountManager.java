@@ -40,7 +40,7 @@ public class AccountManager {
         return true;
     }
 
-    public static boolean update(User user, Account account) {
+    public static void update(User user, Account account) {
         String sql = "UPDATE Account SET " +
                 "firstName = ?, lastName = ?, accountNumber = ?, amount = ? " +
                 "WHERE Id = ?";
@@ -52,11 +52,12 @@ public class AccountManager {
             preparedStatement.setDouble(4, account.getAmount());
             preparedStatement.setInt(5, account.getAccountId());
 
-            int affected = preparedStatement.executeUpdate();
-            return affected == 1;
+            if (preparedStatement.executeUpdate() == 1)
+                System.out.println("Update was successful");
+
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
+            System.err.println("Update failed!");
         }
     }
 
