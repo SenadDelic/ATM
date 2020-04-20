@@ -94,7 +94,7 @@ public class AccountManager {
     }
 
     public static Account getRow(int accountId) throws SQLException {
-        String sql = "SELECT * FROM Account " + "WHERE id = ?";
+        String sql = "SELECT * FROM Account " + "WHERE accountNumber = ?";
         ResultSet rs = null;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
