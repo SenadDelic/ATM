@@ -1,6 +1,7 @@
 package transfer;
 
 import account.Account;
+import database.AccountManager;
 
 public class TransferValidation {
     private Account account;
