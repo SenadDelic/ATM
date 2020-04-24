@@ -64,7 +64,7 @@ public class AccountManager {
         String sql = "DELETE FROM Account WHERE id = ?";
 
         try (
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
             preparedStatement.setInt(1, accountId);
             return preparedStatement.executeUpdate() == 1;
@@ -79,7 +79,7 @@ public class AccountManager {
 
         try (
                 Statement statement = connection.createStatement();
-                ResultSet rs = statement.executeQuery(sql);
+                ResultSet rs = statement.executeQuery(sql)
         ) {
             System.out.printf("%-3s  %-12s  %-11s  %-16s  %-11s", rs.getMetaData().getColumnName(1), rs.getMetaData().getColumnName(2)
                     , rs.getMetaData().getColumnName(3), rs.getMetaData().getColumnName(4), rs.getMetaData().getColumnName(5));
