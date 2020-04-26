@@ -4,9 +4,11 @@ import account.Account;
 import account.User;
 
 import java.sql.*;
+import java.util.Scanner;
 
 public class AccountManager {
     private static Connection connection = ConnectionManager.getInstance().getConnection();
+    private Account account = new Account();
 
     public static boolean insert(User user, Account account) throws SQLException {
         String sql = "INSERT INTO Account (firstName, lastName, accountNumber, amount) "
@@ -64,7 +66,7 @@ public class AccountManager {
         String sql = "DELETE FROM Account WHERE id = ?";
 
         try (
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
             preparedStatement.setInt(1, accountId);
             return preparedStatement.executeUpdate() == 1;
@@ -79,7 +81,7 @@ public class AccountManager {
 
         try (
                 Statement statement = connection.createStatement();
-                ResultSet rs = statement.executeQuery(sql);
+                ResultSet rs = statement.executeQuery(sql)
         ) {
             System.out.printf("%-3s  %-12s  %-11s  %-16s  %-11s", rs.getMetaData().getColumnName(1), rs.getMetaData().getColumnName(2)
                     , rs.getMetaData().getColumnName(3), rs.getMetaData().getColumnName(4), rs.getMetaData().getColumnName(5));
@@ -117,5 +119,35 @@ public class AccountManager {
         } finally {
             if (rs != null) rs.close();
         }
+    }
+
+    public void createAccount(Scanner scanner) throws SQLException {
+        String firstName, lastName;
+        int accountNumber;
+        double amount;
+
+        System.out.print("Enter your first name: ");
+        firstName = scanner.next();
+        System.out.print("Enter your last name: ");
+        lastName = scanner.next();
+
+        System.out.print("Choose your account number: ");
+        accountNumber = scanner.nextInt();
+        while (account.isaAccountNumberAlreadyExist(accountNumber) || account.isAccountNumberNegative(accountNumber)) {
+            System.out.print("Account already exist or you entered negative account number. \nTry again: ");
+            accountNumber = scanner.nextInt();
+        }
+
+        System.out.print("Enter amount: ");
+        amount = scanner.nextDouble();
+        while (account.isNegativeAmount(amount)) {
+            System.out.print("You can't enter negative amount! \\nTry again:");
+            amount = scanner.nextDouble();
+        }
+
+        User user = new User(firstName, lastName);
+        account = new Account(user, accountNumber, amount);
+
+        AccountManager.insert(user, account);
     }
 }
