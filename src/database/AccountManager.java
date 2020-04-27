@@ -125,16 +125,17 @@ public class AccountManager {
         System.out.print("Enter account number: ");
         int accountNUmber = scanner.nextInt();
 
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, accountNUmber);
             resultSet = preparedStatement.executeQuery();
 
           if (resultSet.next()) {
               Account account = new Account();
+              account.setAccountId(resultSet.getInt("id"));
               account.setAccountNumber(resultSet.getInt("accountNumber"));
-              System.out.println("accountId " +   account.getAccountNumber());
+              System.out.println("accountId " +   account.getAccountId());
 
-              return account.getAccountNumber();
+              return account.getAccountId();
           }
             else
                 System.out.println("Invalid source accountNUmber!");

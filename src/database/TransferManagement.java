@@ -1,8 +1,11 @@
 package database;
 
 import account.Account;
+import transfer.Transfer;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class TransferManagement {
@@ -19,13 +22,66 @@ public class TransferManagement {
 
         if (!isEnoughMoney(amount, sourceAccount, connection))
             System.out.println("There is no enough money on account");
-
-
+        else {
+            insertTransfer(sourceAccount, targetAccount, amount, connection);
+        }
     }
-    
+
+    public boolean insertTransfer(int sourceAccount, int targetAccount, double amount, Connection connection) throws SQLException {
+        ResultSet resultSet = null;
+        String sql = "INSERT INTO Transfer (sourceAccount, targetAccount, amount) " +
+                "VALUES (?, ?, ?)";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setInt(1, sourceAccount);
+            preparedStatement.setInt(2, targetAccount);
+            preparedStatement.setDouble(3, amount);
+
+            int affected = preparedStatement.executeUpdate();
+            if (affected == 1) {
+                resultSet = preparedStatement.getGeneratedKeys();
+                resultSet.next();
+                int newRs = resultSet.getInt(1);
+                account.setAccountId(newRs);
+            } else {
+                System.err.println("No rows are affected :(");
+                return false;
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+            return false;
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
+        return true;
+    }
+
+    public List<Transfer> printTransfers(Connection connection) {
+        String sql = "SELECT * FROM Transfer";
+
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(sql)) {
+
+            ArrayList<Transfer> transfers = new ArrayList<>();
+
+            while (resultSet.next()){
+                Transfer transfer = new Transfer();
+                transfer.setTargetAccount(resultSet.getInt(2));
+                transfer.setTargetAccount(resultSet.getInt(3));
+                transfer.setAmountToTransfer(resultSet.getDouble(4));
+
+                transfers.add(transfer);
+            }
+            return transfers;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public boolean isEnoughMoney(double amount, int sourceAccount, Connection connection) {
         ResultSet resultSet;
-        String sql = "SELECT * FROM Account WHERE accountNumber = ?";
+        String sql = "SELECT * FROM Account WHERE id = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
             preparedStatement.setInt(1, sourceAccount);
