@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Bank {
+    private final User user = new User();
+    private final Account account = new Account();
     private final AccountManager accountManager = new AccountManager();
     private final TransferManagement transferManagement = new TransferManagement();
     private static final Connection connection = ConnectionManager.getInstance().getConnection();
@@ -41,7 +43,15 @@ public class Bank {
                             "Target account id " + transfer.getTargetAccount() + " amount = " +
                             transfer.getAmountToTransfer()).forEach(System.out::println);
                     break;
-
+                case 5:
+                    // need to fix update !!!
+                    accountManager.update(user,account, connection);
+                    System.out.println("Need to fix");
+                    break;
+                case 6:
+                    accountManager.delete(connection, scanner);
+                    System.out.println("Need to fix");
+                    break;
             }
         } while (choice != 0);
 

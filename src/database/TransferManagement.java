@@ -29,10 +29,7 @@ public class TransferManagement {
 
     public boolean insertTransfer(int sourceAccount, int targetAccount, double amount, Connection connection) throws SQLException {
         ResultSet resultSet = null;
-        String sql = "INSERT INTO Transfer (sourceAccount, targetAccount, amount) " +
-                "VALUES (?, ?, ?)";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.INSERT_TRANSFER, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, sourceAccount);
             preparedStatement.setInt(2, targetAccount);
             preparedStatement.setDouble(3, amount);
@@ -57,13 +54,10 @@ public class TransferManagement {
     }
 
     public List<Transfer> printTransfers(Connection connection) {
-        String sql = "SELECT * FROM Transfer";
-
         try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(sql)) {
+             ResultSet resultSet = statement.executeQuery(Constant.TRANSFER_QUERY_EVERYTHING_BASED_ON_ID)) {
 
             ArrayList<Transfer> transfers = new ArrayList<>();
-
             while (resultSet.next()){
                 Transfer transfer = new Transfer();
                 transfer.setTargetAccount(resultSet.getInt(2));
@@ -81,9 +75,7 @@ public class TransferManagement {
 
     public boolean isEnoughMoney(double amount, int sourceAccount, Connection connection) {
         ResultSet resultSet;
-        String sql = "SELECT * FROM Account WHERE id = ?";
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.ACCOUNT_QUERY_EVERYTHING_BASED_ON_ID)) {
             preparedStatement.setInt(1, sourceAccount);
             resultSet = preparedStatement.executeQuery();
 

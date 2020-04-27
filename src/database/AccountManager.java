@@ -9,19 +9,15 @@ import java.util.Scanner;
 public class AccountManager {
     private Account account = new Account();
 
-    public boolean insert(User user, Account account, Connection connection) throws SQLException {
-        String sql = "INSERT INTO Account (firstName, lastName, accountNumber, amount) "
-                + "VALUES(?, ?, ?, ?)";
+    public boolean insertAccount(User user, Account account, Connection connection) throws SQLException {
         ResultSet resultSet = null;
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.INSERT_ACCOUNT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
             preparedStatement.setInt(3, account.getAccountNumber());
             preparedStatement.setDouble(4, account.getAmount());
 
             int affected = preparedStatement.executeUpdate();
-
             if (affected == 1) {
                 resultSet = preparedStatement.getGeneratedKeys();
                 resultSet.next();
@@ -40,12 +36,13 @@ public class AccountManager {
         return true;
     }
 
+    // Need to fix it !!!!!
     public void update(User user, Account account, Connection connection) {
         String sql = "UPDATE Account SET " +
                 "firstName = ?, lastName = ?, accountNumber = ?, amount = ? " +
                 "WHERE Id = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.UPDATE_ACCOUNT_BASED_ON_ID)) {
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
             preparedStatement.setInt(3, account.getAccountNumber());
@@ -61,26 +58,27 @@ public class AccountManager {
         }
     }
 
-    public boolean delete(int accountId, Connection connection) {
-        String sql = "DELETE FROM Account WHERE id = ?";
-
+    public void delete(Connection connection, Scanner scanner) {
+        System.out.println("Enter id from account you want to delete: ");
+        int accountId = scanner.nextInt();
         try (
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)
+                PreparedStatement preparedStatement = connection.prepareStatement(Constant.DELETE_ACCOUNT_BASED_ON_ID)
         ) {
             preparedStatement.setInt(1, accountId);
-            return preparedStatement.executeUpdate() == 1;
+
+            if (preparedStatement.executeUpdate() == 1)
+                System.out.println("Account is deleted!");
+            else
+                System.out.println("Something is wrong!");
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
     }
 
     public void displayAllRows(Connection connection) {
-        String sql = "SELECT * FROM Account";
-
         try (
                 Statement statement = connection.createStatement();
-                ResultSet rs = statement.executeQuery(sql)
+                ResultSet rs = statement.executeQuery(Constant.ACCOUNT_QUERY_EVERYTHING)
         ) {
             System.out.printf("%-3s  %-12s  %-11s  %-16s  %-11s", rs.getMetaData().getColumnName(1), rs.getMetaData().getColumnName(2)
                     , rs.getMetaData().getColumnName(3), rs.getMetaData().getColumnName(4), rs.getMetaData().getColumnName(5));
@@ -95,10 +93,8 @@ public class AccountManager {
     }
 
     public Account getRow(int accountId, Connection connection) throws SQLException {
-        String sql = "SELECT * FROM Account " + "WHERE accountNumber = ?";
         ResultSet rs = null;
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.QUERY_ACCOUNT_BY_ACCOUNT_NUMBER)) {
             preparedStatement.setInt(1, accountId);
             rs = preparedStatement.executeQuery();
 
@@ -120,24 +116,24 @@ public class AccountManager {
     }
 
     public int isAccountValid(Scanner scanner, Connection connection) throws SQLException {
-        ResultSet resultSet = null;
-        String sql = "SELECT * FROM Account WHERE accountNumber = ?";
         System.out.print("Enter account number: ");
         int accountNUmber = scanner.nextInt();
 
-        try(PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        ResultSet resultSet = null;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.QUERY_ACCOUNT_BY_ACCOUNT_NUMBER,
+                Statement.RETURN_GENERATED_KEYS)) {
+
             preparedStatement.setInt(1, accountNUmber);
             resultSet = preparedStatement.executeQuery();
 
-          if (resultSet.next()) {
-              Account account = new Account();
-              account.setAccountId(resultSet.getInt("id"));
-              account.setAccountNumber(resultSet.getInt("accountNumber"));
-              System.out.println("accountId " +   account.getAccountId());
+            if (resultSet.next()) {
+                Account account = new Account();
+                account.setAccountId(resultSet.getInt("id"));
+                account.setAccountNumber(resultSet.getInt("accountNumber"));
+                System.out.println("accountId " + account.getAccountId());
 
-              return account.getAccountId();
-          }
-            else
+                return account.getAccountId();
+            } else
                 System.out.println("Invalid source accountNUmber!");
         } catch (SQLException e) {
             e.printStackTrace();
@@ -174,6 +170,6 @@ public class AccountManager {
         User user = new User(firstName, lastName);
         account = new Account(user, accountNumber, amount);
 
-        accountManager.insert(user, account, connection);
+        accountManager.insertAccount(user, account, connection);
     }
 }
