@@ -2,6 +2,7 @@ package account;
 
 import database.AccountManager;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,7 +15,7 @@ public class Account {
     private double amount;
 
     public Account() {
-        listOfAccounts = new ArrayList<>();
+        this.listOfAccounts = new ArrayList<>();
         this.user = new User();
     }
 
@@ -55,8 +56,9 @@ public class Account {
         return accountNumber < 0;
     }
 
-    public boolean isaAccountNumberAlreadyExist(int accountNumber) throws SQLException {
-        return AccountManager.getRow(accountNumber) != null;
+    public boolean isaAccountNumberAlreadyExist(int accountNumber, Connection connection) throws SQLException {
+        AccountManager accountManager = new AccountManager();
+        return accountManager.getRow(accountNumber, connection) != null;
     }
 
     public boolean isNegativeAmount(double amount) {
@@ -75,6 +77,7 @@ public class Account {
     public String toString() {
         return "Account{" +
                 "user=" + user +
+                ", accountId=" + accountId +
                 ", accountNumber=" + accountNumber +
                 ", amount=" + amount +
                 '}';

@@ -7,10 +7,9 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class AccountManager {
-    private static Connection connection = ConnectionManager.getInstance().getConnection();
     private Account account = new Account();
 
-    public static boolean insert(User user, Account account) throws SQLException {
+    public boolean insert(User user, Account account, Connection connection) throws SQLException {
         String sql = "INSERT INTO Account (firstName, lastName, accountNumber, amount) "
                 + "VALUES(?, ?, ?, ?)";
         ResultSet resultSet = null;
@@ -41,7 +40,7 @@ public class AccountManager {
         return true;
     }
 
-    public static void update(User user, Account account) {
+    public void update(User user, Account account, Connection connection) {
         String sql = "UPDATE Account SET " +
                 "firstName = ?, lastName = ?, accountNumber = ?, amount = ? " +
                 "WHERE Id = ?";
@@ -62,7 +61,7 @@ public class AccountManager {
         }
     }
 
-    public static boolean delete(int accountId) {
+    public boolean delete(int accountId, Connection connection) {
         String sql = "DELETE FROM Account WHERE id = ?";
 
         try (
@@ -76,7 +75,7 @@ public class AccountManager {
         }
     }
 
-    public static void displayAllRows() {
+    public void displayAllRows(Connection connection) {
         String sql = "SELECT * FROM Account";
 
         try (
@@ -95,7 +94,7 @@ public class AccountManager {
         }
     }
 
-    public static Account getRow(int accountId) throws SQLException {
+    public Account getRow(int accountId, Connection connection) throws SQLException {
         String sql = "SELECT * FROM Account " + "WHERE accountNumber = ?";
         ResultSet rs = null;
 
@@ -105,7 +104,6 @@ public class AccountManager {
 
             if (rs.next()) {
                 Account account = new Account();
-
                 account.setAccountId(rs.getObject("id", Integer.class));
                 account.setAccountNumber(rs.getObject("accountNumber", Integer.class));
                 account.setAmount(rs.getObject("amount", Double.class));
@@ -121,7 +119,34 @@ public class AccountManager {
         }
     }
 
-    public void createAccount(Scanner scanner) throws SQLException {
+    public int isAccountValid(Scanner scanner, Connection connection) throws SQLException {
+        ResultSet resultSet = null;
+        String sql = "SELECT * FROM Account WHERE accountNumber = ?";
+        System.out.print("Enter account number: ");
+        int accountNUmber = scanner.nextInt();
+
+        try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, accountNUmber);
+            resultSet = preparedStatement.executeQuery();
+
+          if (resultSet.next()) {
+              Account account = new Account();
+              account.setAccountNumber(resultSet.getInt("accountNumber"));
+              System.out.println("accountId " +   account.getAccountNumber());
+
+              return account.getAccountNumber();
+          }
+            else
+                System.out.println("Invalid source accountNUmber!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
+        return accountNUmber;
+    }
+
+    public void createAccount(Scanner scanner, Connection connection, AccountManager accountManager) throws SQLException {
         String firstName, lastName;
         int accountNumber;
         double amount;
@@ -133,7 +158,7 @@ public class AccountManager {
 
         System.out.print("Choose your account number: ");
         accountNumber = scanner.nextInt();
-        while (account.isaAccountNumberAlreadyExist(accountNumber) || account.isAccountNumberNegative(accountNumber)) {
+        while (account.isaAccountNumberAlreadyExist(accountNumber, connection) || account.isAccountNumberNegative(accountNumber)) {
             System.out.print("Account already exist or you entered negative account number. \nTry again: ");
             accountNumber = scanner.nextInt();
         }
@@ -148,6 +173,6 @@ public class AccountManager {
         User user = new User(firstName, lastName);
         account = new Account(user, accountNumber, amount);
 
-        AccountManager.insert(user, account);
+        accountManager.insert(user, account, connection);
     }
 }
