@@ -7,6 +7,5 @@ public class Main {
     public static void main(String[] args) throws SQLException {
         Bank bank = new Bank();
         bank.bank();
-
     }
 }

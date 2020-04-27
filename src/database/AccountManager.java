@@ -7,22 +7,17 @@ import java.sql.*;
 import java.util.Scanner;
 
 public class AccountManager {
-    private static Connection connection = ConnectionManager.getInstance().getConnection();
     private Account account = new Account();
 
-    public static boolean insert(User user, Account account) throws SQLException {
-        String sql = "INSERT INTO Account (firstName, lastName, accountNumber, amount) "
-                + "VALUES(?, ?, ?, ?)";
+    public boolean insertAccount(User user, Account account, Connection connection) throws SQLException {
         ResultSet resultSet = null;
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.INSERT_ACCOUNT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
             preparedStatement.setInt(3, account.getAccountNumber());
             preparedStatement.setDouble(4, account.getAmount());
 
             int affected = preparedStatement.executeUpdate();
-
             if (affected == 1) {
                 resultSet = preparedStatement.getGeneratedKeys();
                 resultSet.next();
@@ -41,12 +36,13 @@ public class AccountManager {
         return true;
     }
 
-    public static void update(User user, Account account) {
+    // Need to fix it !!!!!
+    public void update(User user, Account account, Connection connection) {
         String sql = "UPDATE Account SET " +
                 "firstName = ?, lastName = ?, accountNumber = ?, amount = ? " +
                 "WHERE Id = ?";
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.UPDATE_ACCOUNT_BASED_ON_ID)) {
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
             preparedStatement.setInt(3, account.getAccountNumber());
@@ -62,26 +58,27 @@ public class AccountManager {
         }
     }
 
-    public static boolean delete(int accountId) {
-        String sql = "DELETE FROM Account WHERE id = ?";
-
+    public void delete(Connection connection, Scanner scanner) {
+        System.out.println("Enter id from account you want to delete: ");
+        int accountId = scanner.nextInt();
         try (
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)
+                PreparedStatement preparedStatement = connection.prepareStatement(Constant.DELETE_ACCOUNT_BASED_ON_ID)
         ) {
             preparedStatement.setInt(1, accountId);
-            return preparedStatement.executeUpdate() == 1;
+
+            if (preparedStatement.executeUpdate() == 1)
+                System.out.println("Account is deleted!");
+            else
+                System.out.println("Something is wrong!");
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
     }
 
-    public static void displayAllRows() {
-        String sql = "SELECT * FROM Account";
-
+    public void displayAllRows(Connection connection) {
         try (
                 Statement statement = connection.createStatement();
-                ResultSet rs = statement.executeQuery(sql)
+                ResultSet rs = statement.executeQuery(Constant.ACCOUNT_QUERY_EVERYTHING)
         ) {
             System.out.printf("%-3s  %-12s  %-11s  %-16s  %-11s", rs.getMetaData().getColumnName(1), rs.getMetaData().getColumnName(2)
                     , rs.getMetaData().getColumnName(3), rs.getMetaData().getColumnName(4), rs.getMetaData().getColumnName(5));
@@ -95,17 +92,14 @@ public class AccountManager {
         }
     }
 
-    public static Account getRow(int accountId) throws SQLException {
-        String sql = "SELECT * FROM Account " + "WHERE accountNumber = ?";
+    public Account getRow(int accountId, Connection connection) throws SQLException {
         ResultSet rs = null;
-
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.QUERY_ACCOUNT_BY_ACCOUNT_NUMBER)) {
             preparedStatement.setInt(1, accountId);
             rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
                 Account account = new Account();
-
                 account.setAccountId(rs.getObject("id", Integer.class));
                 account.setAccountNumber(rs.getObject("accountNumber", Integer.class));
                 account.setAmount(rs.getObject("amount", Double.class));
@@ -121,7 +115,35 @@ public class AccountManager {
         }
     }
 
-    public void createAccount(Scanner scanner) throws SQLException {
+    public int isAccountValid(Scanner scanner, Connection connection) throws SQLException {
+        System.out.print("Enter account number: ");
+        int accountNUmber = scanner.nextInt();
+
+        ResultSet resultSet = null;
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.QUERY_ACCOUNT_BY_ACCOUNT_NUMBER,
+                Statement.RETURN_GENERATED_KEYS)) {
+
+            preparedStatement.setInt(1, accountNUmber);
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                Account account = new Account();
+                account.setAccountId(resultSet.getInt("id"));
+                account.setAccountNumber(resultSet.getInt("accountNumber"));
+                System.out.println("accountId " + account.getAccountId());
+
+                return account.getAccountId();
+            } else
+                System.out.println("Invalid source accountNUmber!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (resultSet != null) resultSet.close();
+        }
+        return accountNUmber;
+    }
+
+    public void createAccount(Scanner scanner, Connection connection, AccountManager accountManager) throws SQLException {
         String firstName, lastName;
         int accountNumber;
         double amount;
@@ -133,7 +155,7 @@ public class AccountManager {
 
         System.out.print("Choose your account number: ");
         accountNumber = scanner.nextInt();
-        while (account.isaAccountNumberAlreadyExist(accountNumber) || account.isAccountNumberNegative(accountNumber)) {
+        while (account.isaAccountNumberAlreadyExist(accountNumber, connection) || account.isAccountNumberNegative(accountNumber)) {
             System.out.print("Account already exist or you entered negative account number. \nTry again: ");
             accountNumber = scanner.nextInt();
         }
@@ -148,6 +170,6 @@ public class AccountManager {
         User user = new User(firstName, lastName);
         account = new Account(user, accountNumber, amount);
 
-        AccountManager.insert(user, account);
+        accountManager.insertAccount(user, account, connection);
     }
 }

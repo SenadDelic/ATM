@@ -6,27 +6,51 @@ import account.User;
 import database.AccountManager;
 import database.ConnectionManager;
 import database.TransferManagement;
+import transfer.Transfer;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Bank {
-    private AccountManager accountManager = new AccountManager();
-    private TransferManagement transferManagement = new TransferManagement();
+    private final User user = new User();
+    private final Account account = new Account();
+    private final AccountManager accountManager = new AccountManager();
+    private final TransferManagement transferManagement = new TransferManagement();
+    private static final Connection connection = ConnectionManager.getInstance().getConnection();
+    private final Scanner scanner = new Scanner(System.in);
 
     public void bank() throws SQLException {
-        Scanner scanner = new Scanner(System.in);
-
         int choice;
         do {
             Menu.menu();
 
             switch (choice = scanner.nextByte()) {
                 case 1:
-                    AccountManager.displayAllRows();
+                    accountManager.createAccount(scanner, connection, accountManager);
                     break;
                 case 2:
-                    accountManager.createAccount(scanner);
+                    transferManagement.transferMoney(scanner, connection);
+                    break;
+                case 3:
+                    accountManager.displayAllRows(connection);
+                    break;
+                case 4:
+                    List<Transfer> transferList = transferManagement.printTransfers(connection);
+                    transferList.stream().map(transfer -> "id " + transfer.getId() +
+                            "Source account id: " + transfer.getSourceTarget() +
+                            "Target account id " + transfer.getTargetAccount() + " amount = " +
+                            transfer.getAmountToTransfer()).forEach(System.out::println);
+                    break;
+                case 5:
+                    // need to fix update !!!
+                    accountManager.update(user,account, connection);
+                    System.out.println("Need to fix");
+                    break;
+                case 6:
+                    accountManager.delete(connection, scanner);
+                    System.out.println("Need to fix");
                     break;
             }
         } while (choice != 0);
