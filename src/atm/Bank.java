@@ -38,8 +38,7 @@ public class Bank {
                     transferManagement.printTransfers(connection);
                     break;
                 case 5:
-                    // need to fix update !!!
-                    accountManager.update(user,account, connection);
+                    accountManager.update(scanner, connection);
                     break;
                 case 6:
                     accountManager.delete(connection, scanner);

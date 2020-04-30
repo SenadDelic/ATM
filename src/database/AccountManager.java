@@ -38,20 +38,79 @@ public class AccountManager {
     }
 
     // Need to fix it !!!!!
-    public void update(User user, Account account, Connection connection) {
-        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.UPDATE_ACCOUNT_BASED_ON_ID)) {
-            preparedStatement.setString(1, user.getFirstName());
-            preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setInt(3, account.getAccountNumber());
-            preparedStatement.setDouble(4, account.getAmount());
-            preparedStatement.setInt(5, account.getAccountId());
+    public void update(Scanner scanner, Connection connection) throws SQLException {
+        int accountId = isAccountValid(scanner, connection);
 
-            if (preparedStatement.executeUpdate() == 1)
-                System.out.println("Update was successful");
+        System.out.println("Select: " +
+                "\t\"A\" --> if you want to update your first name" +
+                "\t\"B\" --> if you want to update last name" +
+                "\t\"C\" --> if you want to update first and last name" +
+                "\t\"D\" --> if you want to change your account number" +
+                "\t\"E\" --> if you want to exit");
 
+        char choice = scanner.next().toUpperCase().charAt(0);
+
+        switch (choice) {
+            case 'A':
+                updateUserFirstName(accountId, scanner, connection);
+                break;
+            case 'B':
+                updateUserLastName(accountId, scanner, connection);
+                break;
+            case 'C':
+                updateUserFirstName(accountId, scanner, connection);
+                updateUserLastName(accountId, scanner, connection);
+                break;
+            case 'D':
+                updateUserAccountNumber(accountId, scanner, connection);
+                break;
+            case 'E':
+                System.exit(0);
+        }
+    }
+
+    public void updateUserFirstName(int id, Scanner scanner, Connection connection) {
+        System.out.print("Enter your first name: ");
+        String firstName = scanner.next();
+
+        String sql = "UPDATE Account Set firstName = ? WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, firstName);
+            preparedStatement.setInt(2, id);
+
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Update failed!");
+        }
+    }
+
+    public void updateUserLastName(int id, Scanner scanner, Connection connection) {
+        System.out.print("Enter your last name: ");
+        String lastName = scanner.next();
+
+        String sql = "UPDATE Account Set lastName = ? WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setString(1, lastName);
+            preparedStatement.setInt(2, id);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void updateUserAccountNumber(int id, Scanner scanner, Connection connection) {
+        System.out.print("Enter your new account number: ");
+        int accountNumber = scanner.nextInt();
+
+        String sql = "UPDATE Account Set accountNumber = ? WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+            preparedStatement.setInt(1, accountNumber);
+            preparedStatement.setInt(2, id);
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
