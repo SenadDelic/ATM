@@ -70,8 +70,7 @@ public class AccountManager {
         System.out.print("Enter your first name: ");
         String firstName = scanner.next();
 
-        String sql = "UPDATE Account Set firstName = ? WHERE id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.ACCOUNT_UPDATE_FIRST_NAME)) {
             preparedStatement.setString(1, firstName);
             preparedStatement.setInt(2, id);
 
@@ -85,8 +84,7 @@ public class AccountManager {
         System.out.print("Enter your last name: ");
         String lastName = scanner.next();
 
-        String sql = "UPDATE Account Set lastName = ? WHERE id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.ACCOUNT_UPDATE_LAST_NAME)) {
             preparedStatement.setString(1, lastName);
             preparedStatement.setInt(2, id);
 
@@ -100,8 +98,7 @@ public class AccountManager {
         System.out.print("Enter your new account number: ");
         int accountNumber = scanner.nextInt();
 
-        String sql = "UPDATE Account Set accountNumber = ? WHERE id = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.ACCOUNT_UPDATE_ACCOUNT_NUMBER)) {
             preparedStatement.setInt(1, accountNumber);
             preparedStatement.setInt(2, id);
 
@@ -191,11 +188,10 @@ public class AccountManager {
                 Account account = new Account();
                 account.setAccountId(resultSet.getInt("id"));
                 account.setAccountNumber(resultSet.getInt("accountNumber"));
-                System.out.println("accountId " + account.getAccountId());
 
                 return account.getAccountId();
             } else
-                System.out.println("Invalid source accountNUmber!");
+                System.out.println("Invalid account number!");
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {

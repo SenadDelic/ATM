@@ -23,6 +23,14 @@ public class Constant {
     public static final String DELETE_ACCOUNT_BASED_ON_ID = "DELETE FROM " + TABLE_ACCOUNT + " WHERE " +
             ACCOUNT_COLUMN_ACCOUNT_NUMBER + " = ?";
 
+    //Update
+    public static final String ACCOUNT_UPDATE_FIRST_NAME = "UPDATE " + TABLE_ACCOUNT + " SET " + ACCOUNT_COLUMN_FIRST_NAME + " = ?" +
+            " WHERE " + ACCOUNT_COLUMN_ID + " = ?";
+    public static final String ACCOUNT_UPDATE_LAST_NAME = "UPDATE " + TABLE_ACCOUNT + " SET " + ACCOUNT_COLUMN_LAST_NAME + " = ?" +
+            " WHERE " + ACCOUNT_COLUMN_ID + " = ?";
+    public static final String ACCOUNT_UPDATE_ACCOUNT_NUMBER = "UPDATE " + TABLE_ACCOUNT + " SET " + ACCOUNT_COLUMN_ACCOUNT_NUMBER + " = ?" +
+            " WHERE " + ACCOUNT_COLUMN_ID + " = ?";
+
     // Transfer
     public static final String TABLE_TRANSFER = "Transfer";
     public static final String TRANSFER_COLUMN_SOURCE_ACCOUNT = "sourceAccount";
