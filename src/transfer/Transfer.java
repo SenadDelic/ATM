@@ -46,13 +46,4 @@ public class Transfer {
     public void setAmountToTransfer(double amountToTransfer) {
         this.amountToTransfer = amountToTransfer;
     }
-
-    @Override
-    public String toString() {
-        return "Transfer{" +
-                "sourceTarget=" + sourceTarget +
-                ", targetAccount=" + targetAccount +
-                ", amountToTransfer=" + amountToTransfer +
-                '}';
-    }
 }

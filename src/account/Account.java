@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Account {
+    private Connection connection;
     private ArrayList<Account> listOfAccounts;
     private User user;
     private int accountId;
@@ -56,7 +57,7 @@ public class Account {
         return accountNumber < 0;
     }
 
-    public boolean isaAccountNumberAlreadyExist(int accountNumber, Connection connection) throws SQLException {
+    public boolean isaAccountNumberAlreadyExist(int accountNumber) throws SQLException {
         AccountManager accountManager = new AccountManager();
         return accountManager.getRow(accountNumber, connection) != null;
     }
@@ -71,15 +72,5 @@ public class Account {
 
     public void printListOfAccounts() {
         listOfAccounts.forEach(System.out::println);
-    }
-
-    @Override
-    public String toString() {
-        return "Account{" +
-                "user=" + user +
-                ", accountId=" + accountId +
-                ", accountNumber=" + accountNumber +
-                ", amount=" + amount +
-                '}';
     }
 }

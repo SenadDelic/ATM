@@ -5,7 +5,6 @@ import transfer.Transfer;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class TransferManagement {
@@ -23,7 +22,29 @@ public class TransferManagement {
         if (!isEnoughMoney(amount, sourceAccount, connection))
             System.out.println("There is no enough money on account");
         else {
+            updateAmount(sourceAccount, targetAccount, amount, connection);
+        }
+    }
+
+    public void updateAmount(int sourceAccount, int targetAccount, double amount, Connection connection) throws SQLException {
+        connection.setAutoCommit(false);
+        try (PreparedStatement withdrawPrepareStatement = connection.prepareStatement(Constant.TRANSFER_WITHDRAW);
+             PreparedStatement depositPreparedStatement = connection.prepareStatement(Constant.TRANSFER_DEPOSIT)) {
+            withdrawPrepareStatement.setDouble(1, amount);
+            withdrawPrepareStatement.setInt(2, sourceAccount);
+
+            depositPreparedStatement.setDouble(1, amount);
+            depositPreparedStatement.setInt(2, targetAccount);
+
+            withdrawPrepareStatement.executeUpdate();
+            depositPreparedStatement.executeUpdate();
             insertTransfer(sourceAccount, targetAccount, amount, connection);
+            connection.commit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            connection.rollback();
+        } finally {
+            connection.setAutoCommit(true);
         }
     }
 
@@ -44,8 +65,8 @@ public class TransferManagement {
                 System.err.println("No rows are affected :(");
                 return false;
             }
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         } finally {
             if (resultSet != null) resultSet.close();
@@ -53,12 +74,12 @@ public class TransferManagement {
         return true;
     }
 
-    public List<Transfer> printTransfers(Connection connection) {
+    public void printTransfers(Connection connection) {
         try (Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(Constant.TRANSFER_QUERY_EVERYTHING_BASED_ON_ID)) {
 
             ArrayList<Transfer> transfers = new ArrayList<>();
-            while (resultSet.next()){
+            while (resultSet.next()) {
                 Transfer transfer = new Transfer();
                 transfer.setTargetAccount(resultSet.getInt(2));
                 transfer.setTargetAccount(resultSet.getInt(3));
@@ -66,10 +87,13 @@ public class TransferManagement {
 
                 transfers.add(transfer);
             }
-            return transfers;
+
+            transfers.stream().map(transfer -> "id " + transfer.getId() +
+                    "Source account id: " + transfer.getSourceTarget() +
+                    "Target account id " + transfer.getTargetAccount() + " amount = " +
+                    transfer.getAmountToTransfer()).forEach(System.out::println);
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
         }
     }
 

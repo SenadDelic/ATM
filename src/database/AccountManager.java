@@ -11,6 +11,7 @@ public class AccountManager {
 
     public boolean insertAccount(User user, Account account, Connection connection) throws SQLException {
         ResultSet resultSet = null;
+
         try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.INSERT_ACCOUNT, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
@@ -38,10 +39,6 @@ public class AccountManager {
 
     // Need to fix it !!!!!
     public void update(User user, Account account, Connection connection) {
-        String sql = "UPDATE Account SET " +
-                "firstName = ?, lastName = ?, accountNumber = ?, amount = ? " +
-                "WHERE Id = ?";
-
         try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.UPDATE_ACCOUNT_BASED_ON_ID)) {
             preparedStatement.setString(1, user.getFirstName());
             preparedStatement.setString(2, user.getLastName());
@@ -59,19 +56,27 @@ public class AccountManager {
     }
 
     public void delete(Connection connection, Scanner scanner) {
-        System.out.println("Enter id from account you want to delete: ");
-        int accountId = scanner.nextInt();
-        try (
-                PreparedStatement preparedStatement = connection.prepareStatement(Constant.DELETE_ACCOUNT_BASED_ON_ID)
-        ) {
-            preparedStatement.setInt(1, accountId);
+        System.out.println("Enter account number from account you want to delete: (0 to Exit! )");
+        int accountNumber = scanner.nextInt();
 
-            if (preparedStatement.executeUpdate() == 1)
-                System.out.println("Account is deleted!");
-            else
-                System.out.println("Something is wrong!");
-        } catch (SQLException e) {
-            e.printStackTrace();
+        if (accountNumber == 0) {
+            return;
+        } else {
+            try (
+                    PreparedStatement preparedStatement = connection.prepareStatement(Constant.DELETE_ACCOUNT_BASED_ON_ID)
+            ) {
+                if (account.isaAccountNumberAlreadyExist(accountNumber)) {
+                    preparedStatement.setInt(1, accountNumber);
+
+                    if (preparedStatement.executeUpdate() == 1)
+                        System.out.println("Account is deleted!");
+                    else
+                        System.out.println("Something is wrong!");
+                } else
+                    System.out.println("Account number: \"" + accountNumber + "\" don't exist");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -155,7 +160,7 @@ public class AccountManager {
 
         System.out.print("Choose your account number: ");
         accountNumber = scanner.nextInt();
-        while (account.isaAccountNumberAlreadyExist(accountNumber, connection) || account.isAccountNumberNegative(accountNumber)) {
+        while (account.isaAccountNumberAlreadyExist(accountNumber) || account.isAccountNumberNegative(accountNumber)) {
             System.out.print("Account already exist or you entered negative account number. \nTry again: ");
             accountNumber = scanner.nextInt();
         }
@@ -167,9 +172,16 @@ public class AccountManager {
             amount = scanner.nextDouble();
         }
 
-        User user = new User(firstName, lastName);
+        User user = new User(firstLetterToUpperCase(firstName), firstLetterToUpperCase(lastName));
         account = new Account(user, accountNumber, amount);
 
         accountManager.insertAccount(user, account, connection);
+    }
+
+    /**
+     * Return string with first character in uppercase
+     */
+    private String firstLetterToUpperCase(String name) {
+        return Character.toString(name.charAt(0)).toUpperCase() + name.substring(1);
     }
 }
