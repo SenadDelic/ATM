@@ -8,7 +8,7 @@ public class ConnectionManager {
     private static ConnectionManager instance = null;
 
     private static final String USERNAME = "root";
-    private static final String PASSWORD = "opasanPassword";
+    private static final String PASSWORD = "mike";
     private static final String URL = Constant.CONNECTION_STRING + Constant.TIME_ZONE_ERROR;
 
     private Connection connection = null;
