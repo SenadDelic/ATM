@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Account {
-    private Connection connection;
     private ArrayList<Account> listOfAccounts;
+    private Connection connection;
     private User user;
     private int accountId;
     private int accountNumber;
@@ -64,13 +64,5 @@ public class Account {
 
     public boolean isNegativeAmount(double amount) {
         return amount < 0;
-    }
-
-    public ArrayList<Account> getListOfAccounts() {
-        return listOfAccounts;
-    }
-
-    public void printListOfAccounts() {
-        listOfAccounts.forEach(System.out::println);
     }
 }

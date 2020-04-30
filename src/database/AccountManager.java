@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class AccountManager {
     private Account account = new Account();
 
-    public boolean insertAccount(User user, Account account, Connection connection) throws SQLException {
+    public void insertAccount(User user, Account account, Connection connection) throws SQLException {
         ResultSet resultSet = null;
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.INSERT_ACCOUNT, Statement.RETURN_GENERATED_KEYS)) {
@@ -26,27 +26,24 @@ public class AccountManager {
                 account.setAccountId(newRs);
             } else {
                 System.err.println("No rows are affected :(");
-                return false;
             }
         } catch (SQLException e) {
+            System.out.println("Something is wrong");
             e.printStackTrace();
-            return false;
         } finally {
             if (resultSet != null) resultSet.close();
         }
-        return true;
     }
 
-    // Need to fix it !!!!!
     public void update(Scanner scanner, Connection connection) throws SQLException {
         int accountId = isAccountValid(scanner, connection);
 
         System.out.println("Select: " +
-                "\t\"A\" --> if you want to update your first name" +
-                "\t\"B\" --> if you want to update last name" +
-                "\t\"C\" --> if you want to update first and last name" +
-                "\t\"D\" --> if you want to change your account number" +
-                "\t\"E\" --> if you want to exit");
+                "\n\t\"A\" --> if you want to update your first name" +
+                "\n\t\"B\" --> if you want to update last name" +
+                "\n\t\"C\" --> if you want to update first and last name" +
+                "\n\t\"D\" --> if you want to change your account number" +
+                "\n\t\"E\" --> if you want to exit");
 
         char choice = scanner.next().toUpperCase().charAt(0);
 
@@ -65,7 +62,7 @@ public class AccountManager {
                 updateUserAccountNumber(accountId, scanner, connection);
                 break;
             case 'E':
-                System.exit(0);
+                break;
         }
     }
 

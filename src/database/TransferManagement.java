@@ -48,7 +48,7 @@ public class TransferManagement {
         }
     }
 
-    public boolean insertTransfer(int sourceAccount, int targetAccount, double amount, Connection connection) throws SQLException {
+    public void insertTransfer(int sourceAccount, int targetAccount, double amount, Connection connection) throws SQLException {
         ResultSet resultSet = null;
         try (PreparedStatement preparedStatement = connection.prepareStatement(Constant.INSERT_TRANSFER, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, sourceAccount);
@@ -63,15 +63,12 @@ public class TransferManagement {
                 account.setAccountId(newRs);
             } else {
                 System.err.println("No rows are affected :(");
-                return false;
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         } finally {
             if (resultSet != null) resultSet.close();
         }
-        return true;
     }
 
     public void printTransfers(Connection connection) {
@@ -81,16 +78,17 @@ public class TransferManagement {
             ArrayList<Transfer> transfers = new ArrayList<>();
             while (resultSet.next()) {
                 Transfer transfer = new Transfer();
-                transfer.setTargetAccount(resultSet.getInt(2));
+                transfer.setId(resultSet.getInt(1));
+                transfer.setSourceTarget(resultSet.getInt(2));
                 transfer.setTargetAccount(resultSet.getInt(3));
                 transfer.setAmountToTransfer(resultSet.getDouble(4));
 
                 transfers.add(transfer);
             }
 
-            transfers.stream().map(transfer -> "id " + transfer.getId() +
-                    "Source account id: " + transfer.getSourceTarget() +
-                    "Target account id " + transfer.getTargetAccount() + " amount = " +
+            transfers.stream().map(transfer -> "Id " + transfer.getId() +
+                    " Source account id: " + transfer.getSourceTarget() +
+                    " Target account id " + transfer.getTargetAccount() + " amount = " +
                     transfer.getAmountToTransfer()).forEach(System.out::println);
         } catch (SQLException e) {
             e.printStackTrace();

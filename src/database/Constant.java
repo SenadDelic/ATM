@@ -20,9 +20,6 @@ public class Constant {
     public static final String INSERT_ACCOUNT = "INSERT INTO " + TABLE_ACCOUNT + "(" + ACCOUNT_COLUMN_FIRST_NAME + ", " +
             ACCOUNT_COLUMN_LAST_NAME + ", " + ACCOUNT_COLUMN_ACCOUNT_NUMBER + ", " + ACCOUNT_COLUMN_ACCOUNT_AMOUNT + ")" +
             "VALUES(?, ?, ?, ?)";
-    public static final String UPDATE_ACCOUNT_BASED_ON_ID = "UPDATE " + TABLE_ACCOUNT + " SET " + ACCOUNT_COLUMN_FIRST_NAME + " = ?, " +
-            ACCOUNT_COLUMN_LAST_NAME + " = ?, " + ACCOUNT_COLUMN_ACCOUNT_NUMBER + " = ?, " + ACCOUNT_COLUMN_ACCOUNT_AMOUNT + " = ?" +
-            " WHERE " + ACCOUNT_COLUMN_ID + " = ?";
     public static final String DELETE_ACCOUNT_BASED_ON_ID = "DELETE FROM " + TABLE_ACCOUNT + " WHERE " +
             ACCOUNT_COLUMN_ACCOUNT_NUMBER + " = ?";
 

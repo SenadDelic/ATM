@@ -12,14 +12,13 @@ import java.sql.SQLException;
 import java.util.Scanner;
 
 public class Bank {
-    private final User user = new User();
-    private final Account account = new Account();
     private final AccountManager accountManager = new AccountManager();
     private final TransferManagement transferManagement = new TransferManagement();
     private static final Connection connection = ConnectionManager.getInstance().getConnection();
     private final Scanner scanner = new Scanner(System.in);
 
     public void bank() throws SQLException {
+        Menu.welcome();
         int choice;
         do {
             Menu.menu();
@@ -45,6 +44,7 @@ public class Bank {
                     break;
             }
         } while (choice != 0);
+        Menu.exit();
         scanner.close();
         ConnectionManager.getInstance().closeConnection();
     }
